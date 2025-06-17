@@ -21,9 +21,9 @@ export class SuccessInterceptor<T>
     next: CallHandler,
   ): Observable<SuccessResponse<T>> {
     return next.handle().pipe(
-      map((data: T) => ({
+      map((data) => ({
         status: 'success',
-        data,
+        data: data?.toObject ? data.toObject() : data,
       })),
     );
   }

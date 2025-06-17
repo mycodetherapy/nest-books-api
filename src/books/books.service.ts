@@ -1,39 +1,37 @@
 import { Injectable } from '@nestjs/common';
-import { Book } from '../interfaces/book.interface';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+
+import { Book, BookDocument } from './schemas/book.schema';
+import { CreateBookDto, UpdateBookDto } from './dto/book.dto';
 
 @Injectable()
 export class BooksService {
-  private books: Book[] = [
-    { id: 1, title: 'The Hobbit', author: 'J.R.R. Tolkien' },
-    { id: 2, title: '1984', author: 'George Orwell' },
-  ];
-  private lastId = 2;
+  constructor(@InjectModel(Book.name) private bookModel: Model<BookDocument>) {}
 
-  getAllBooks(): Book[] {
-    return this.books;
+  async findAll(): Promise<BookDocument[]> {
+    return this.bookModel.find().exec();
   }
 
-  getBookById(id: number): Book | undefined {
-    return this.books.find((book: Book) => book.id === id);
+  async findOne(id: string): Promise<BookDocument | null> {
+    return this.bookModel.findById(id).exec();
   }
 
-  createBook(book: Omit<Book, 'id'>): Book {
-    const newBook = { id: ++this.lastId, ...book };
-    this.books.push(newBook);
-    return newBook;
+  async create(createBookDto: CreateBookDto): Promise<BookDocument> {
+    const createdBook = new this.bookModel(createBookDto);
+    return createdBook.save();
   }
 
-  updateBook(id: number, updateData: Partial<Book>): Book | undefined {
-    const index = this.books.findIndex((book: Book) => book.id === id);
-    if (index === -1) return undefined;
-
-    this.books[index] = { ...this.books[index], ...updateData };
-    return this.books[index];
+  async update(
+    id: string,
+    updateBookDto: UpdateBookDto,
+  ): Promise<BookDocument | null> {
+    return this.bookModel
+      .findByIdAndUpdate(id, updateBookDto, { new: true })
+      .exec();
   }
 
-  deleteBook(id: number): boolean {
-    const initialLength = this.books.length;
-    this.books = this.books.filter((book: Book) => book.id !== id);
-    return this.books.length !== initialLength;
+  async remove(id: string): Promise<BookDocument | null> {
+    return this.bookModel.findByIdAndDelete(id).exec();
   }
 }

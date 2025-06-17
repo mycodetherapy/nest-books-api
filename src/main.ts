@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe, VersioningType } from '@nestjs/common';
-import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
+import { MongoExceptionFilter } from './common/filters/all-exceptions.filter';
 import { SuccessInterceptor } from './common/success.interceptor';
 
 async function bootstrap() {
@@ -20,7 +20,7 @@ async function bootstrap() {
     prefix: 'v',
   });
 
-  app.useGlobalFilters(new AllExceptionsFilter());
+  app.useGlobalFilters(new MongoExceptionFilter());
   app.useGlobalInterceptors(new SuccessInterceptor());
 
   await app.listen(3000);

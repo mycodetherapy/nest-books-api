@@ -10,55 +10,58 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { BooksService } from './books.service';
-import { Book } from '../interfaces/book.interface';
-import { CreateBookDto, UpdateBookDto, BookIdParamDto } from './dto/book.dto';
+
 import { JoiValidationPipe } from '../common/pipes/joi-validation.pipe';
 import {
   createBookSchema,
   updateBookSchema,
   bookIdParamSchema,
-} from './schemas/book.schema';
+} from './schemas/validation.schemas';
+import { CreateBookDto, UpdateBookDto } from './dto/book.dto';
 
-@Controller({ path: 'books', version: '1' })
+@Controller({
+  path: 'books',
+  version: '1',
+})
 export class BooksController {
   constructor(private readonly booksService: BooksService) {}
 
   @Get()
-  getAllBooks(): Book[] {
-    return this.booksService.getAllBooks();
+  async findAll() {
+    const books = await this.booksService.findAll();
+    if (!books.length) throw new NotFoundException('No books found');
+    return books;
   }
 
   @Get(':id')
-  getBookById(
-    @Param(new JoiValidationPipe(bookIdParamSchema)) params: BookIdParamDto,
-  ) {
-    const book = this.booksService.getBookById(params.id);
+  @UsePipes(new JoiValidationPipe(bookIdParamSchema))
+  async findOne(@Param('id') id: string) {
+    const book = await this.booksService.findOne(id);
     if (!book) throw new NotFoundException('Book not found');
     return book;
   }
 
   @Post()
   @UsePipes(new JoiValidationPipe(createBookSchema))
-  createBook(@Body() bookData: CreateBookDto): Book {
-    return this.booksService.createBook(bookData);
+  async create(@Body() createBookDto: CreateBookDto) {
+    return this.booksService.create(createBookDto);
   }
 
   @Put(':id')
-  updateBook(
-    @Param(new JoiValidationPipe(bookIdParamSchema)) params: BookIdParamDto,
-    @Body(new JoiValidationPipe(updateBookSchema)) updateData: UpdateBookDto,
+  async update(
+    @Param('id', new JoiValidationPipe(bookIdParamSchema)) id: string,
+    @Body(new JoiValidationPipe(updateBookSchema)) updateBookDto: UpdateBookDto,
   ) {
-    const updatedBook = this.booksService.updateBook(params.id, updateData);
+    const updatedBook = await this.booksService.update(id, updateBookDto);
     if (!updatedBook) throw new NotFoundException('Book not found');
     return updatedBook;
   }
 
   @Delete(':id')
-  deleteBook(
-    @Param(new JoiValidationPipe(bookIdParamSchema)) params: BookIdParamDto,
-  ) {
-    const isDeleted = this.booksService.deleteBook(params.id);
-    if (!isDeleted) throw new NotFoundException('Book not found');
-    return { message: 'Book deleted' };
+  @UsePipes(new JoiValidationPipe(bookIdParamSchema))
+  async remove(@Param('id') id: string) {
+    const deletedBook = await this.booksService.remove(id);
+    if (!deletedBook) throw new NotFoundException('Book not found');
+    return { message: 'Book deleted successfully' };
   }
 }

@@ -1,18 +1,39 @@
-import * as Joi from 'joi';
-import { CreateBookDto, UpdateBookDto, BookIdParamDto } from '../dto/book.dto';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Document, Types } from 'mongoose';
 
-export const createBookSchema = Joi.object<CreateBookDto>({
-  title: Joi.string().required().min(3).max(100),
-  author: Joi.string().required().min(3).max(50),
-  description: Joi.string().optional().max(500),
-});
+export type BookDocument = (Book & Document) | null;
 
-export const updateBookSchema = Joi.object<UpdateBookDto>({
-  title: Joi.string().min(3).max(100),
-  author: Joi.string().min(3).max(50),
-  description: Joi.string().max(500),
-}).min(1);
+@Schema({ timestamps: true })
+export class Book extends Document {
+  @Prop({ required: true })
+  title: string;
 
-export const bookIdParamSchema = Joi.object<BookIdParamDto>({
-  id: Joi.number().integer().positive().required(),
-});
+  @Prop()
+  description: string;
+
+  @Prop({ required: true })
+  authors: string[];
+
+  @Prop({ type: [{ type: Types.ObjectId, ref: 'User' }] })
+  favorites: Types.ObjectId[];
+
+  @Prop({ required: true })
+  fileCover: string;
+
+  @Prop({ required: true })
+  fileName: string;
+
+  @Prop({ required: true })
+  filePath: string;
+
+  @Prop({ default: 0 })
+  views: number;
+
+  @Prop({ type: Types.ObjectId, ref: 'User', required: true })
+  userId: Types.ObjectId;
+
+  @Prop({ type: [{ type: Types.ObjectId, ref: 'Comment' }] })
+  comments: Types.ObjectId[];
+}
+
+export const BookSchema = SchemaFactory.createForClass(Book);
