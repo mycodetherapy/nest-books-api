@@ -38,7 +38,8 @@ $ npm run start
 $ npm run start:dev
 ```
  ## Routes
-
+ `POST`    `/api/v1/auth/signin`      login a user            
+ `POST`    `/api/v1/auth/signup`      register a user
  `GET`     `/api/v1/books`            get all books           
  `GET`     `/api/v1/books/:id`        get a book by **ID**    
  `POST`    `/api/v1/books`            create a book           
