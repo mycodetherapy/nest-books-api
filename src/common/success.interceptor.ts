@@ -10,6 +10,7 @@ import { map } from 'rxjs/operators';
 interface SuccessResponse<T> {
   status: 'success';
   data: T;
+  timestamp: string;
 }
 
 @Injectable()
@@ -24,6 +25,7 @@ export class SuccessInterceptor<T>
       map((data) => ({
         status: 'success',
         data: data?.toObject ? data.toObject() : data,
+        timestamp: new Date().toISOString(),
       })),
     );
   }

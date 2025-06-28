@@ -8,9 +8,9 @@ import {
   Body,
   UsePipes,
   NotFoundException,
+  UseGuards,
 } from '@nestjs/common';
 import { BooksService } from './books.service';
-
 import { JoiValidationPipe } from '../common/pipes/joi-validation.pipe';
 import {
   createBookSchema,
@@ -18,6 +18,7 @@ import {
   bookIdParamSchema,
 } from './schemas/validation.schemas';
 import { CreateBookDto, UpdateBookDto } from './dto/book.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller({
   path: 'books',
@@ -42,12 +43,14 @@ export class BooksController {
   }
 
   @Post()
+  @UseGuards(JwtAuthGuard)
   @UsePipes(new JoiValidationPipe(createBookSchema))
   async create(@Body() createBookDto: CreateBookDto) {
     return this.booksService.create(createBookDto);
   }
 
   @Put(':id')
+  @UseGuards(JwtAuthGuard)
   async update(
     @Param('id', new JoiValidationPipe(bookIdParamSchema)) id: string,
     @Body(new JoiValidationPipe(updateBookSchema)) updateBookDto: UpdateBookDto,
@@ -58,6 +61,7 @@ export class BooksController {
   }
 
   @Delete(':id')
+  @UseGuards(JwtAuthGuard)
   @UsePipes(new JoiValidationPipe(bookIdParamSchema))
   async remove(@Param('id') id: string) {
     const deletedBook = await this.booksService.remove(id);
