@@ -4,6 +4,7 @@ import {
   ArgumentsHost,
   HttpException,
   HttpStatus,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { MongoError } from 'mongodb';
@@ -41,6 +42,10 @@ export class MongoExceptionFilter implements ExceptionFilter {
       status = HttpStatus.BAD_REQUEST;
       message = `Invalid ${exception.kind}: ${exception.value}`;
       code = 'CAST_ERROR';
+    } else if (exception instanceof UnauthorizedException) {
+      status = HttpStatus.UNAUTHORIZED;
+      message = exception.message || 'Unauthorized';
+      code = 'AUTH_ERROR';
     }
 
     response.status(status).json({
