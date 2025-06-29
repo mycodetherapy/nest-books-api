@@ -15,7 +15,10 @@ import { User, UserSchema } from '../User/schemas/user.schema';
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     PassportModule,
     JwtModule.registerAsync({
-      imports: [ConfigModule],
+      imports: [
+        MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+        ConfigModule,
+      ],
       useFactory: (configService: ConfigService) => ({
         secret: configService.get<string>('JWT_SECRET'),
         signOptions: { expiresIn: '60m' },

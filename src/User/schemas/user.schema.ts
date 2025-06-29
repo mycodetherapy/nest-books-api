@@ -14,7 +14,11 @@ export class User {
   @Prop({ required: true })
   password: string;
 
-  @Prop({ sparse: true })
+  @Prop({
+    sparse: true,
+    unique: false,
+    default: undefined,
+  })
   username?: string;
 }
 

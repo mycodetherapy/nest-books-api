@@ -1,37 +1,39 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
+import { InjectModel } from '@nestjs/mongoose';
+import { UserDocument } from '../../User/schemas/user.schema';
+import { Model } from 'mongoose';
 
 interface JwtPayload {
-  sub: string;
+  id: string;
   email: string;
   firstName: string;
 }
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor(private readonly configService: ConfigService) {
+  constructor(
+    @InjectModel('User') private userModel: Model<UserDocument>,
+    configService: ConfigService,
+  ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      secretOrKey: configService.getOrThrow<string>('JWT_SECRET'),
       ignoreExpiration: false,
-      secretOrKey: configService.get<string>('JWT_SECRET', 'defaultSecretKey'),
     });
   }
 
-  validate(payload: JwtPayload): {
-    id: string;
-    email: string;
-    firstName: string;
-  } {
-    if (!payload.sub || !payload.email || !payload.firstName) {
-      throw new Error('Invalid token payload');
+  async validate(payload: JwtPayload) {
+    try {
+      const user = await this.userModel.findById(payload.id);
+      if (!user) {
+        throw new UnauthorizedException('User not found in database');
+      }
+      return user;
+    } catch (error) {
+      throw new UnauthorizedException('Invalid token payload' + error);
     }
-
-    return {
-      id: payload.sub,
-      email: payload.email,
-      firstName: payload.firstName,
-    };
   }
 }
