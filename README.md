@@ -36,6 +36,15 @@ $ npm run start
 
 # watch mode
 $ npm run start:dev
+
+# Run all unit tests (service/logic tests)
+$ npm run test:unit
+
+# Run all e2e tests (API endpoint tests)
+$ npm run test:e2e
+
+# Run all tests (unit and e2e)
+$ npm run test
 ```
  ## Routes
  `POST`    `/api/v1/auth/signin`      login a user            
@@ -44,5 +53,13 @@ $ npm run start:dev
  `GET`     `/api/v1/books/:id`        get a book by **ID**    
  `POST`    `/api/v1/books`            create a book           
  `PUT`     `/api/v1/books/:id`        edit a book by **ID**   
- `DELETE`  `/api/v1/books/:id`        delete a book by **ID** 
+ `DELETE`  `/api/v1/books/:id`        delete a book by **ID**
+ `GET`     `/api/v1/users`            get all users 
+ `GET`     `/api/v1/users/me`         get current user profile  
+ `GET`     `/api/v1/users/:id`        get user by **ID**  
+ `PUT`     `/api/v1/users/me`         update current user profile  
+ `PUT`     `/api/v1/users/:id`        update user by **ID** 
+ `DELETE`  `/api/v1/users/me`         delete current user account  
+ `DELETE`  `/api/v1/users/:id`        delete user by **ID**  
+ 
 
