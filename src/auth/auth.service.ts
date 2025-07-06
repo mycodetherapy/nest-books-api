@@ -19,10 +19,13 @@ export class AuthService {
   async signUp(signUpDto: SignUpDto): Promise<{ accessToken: string }> {
     try {
       const hashedPassword = await this.hashPassword(signUpDto.password);
-      const user = await this.userModel.create({
-        ...signUpDto,
+      const userData = {
+        email: signUpDto.email,
+        firstName: signUpDto.firstName,
         password: hashedPassword,
-      });
+        ...(signUpDto.username && { username: signUpDto.username }),
+      };
+      const user = await this.userModel.create(userData);
       return this.generateToken(user);
     } catch (err) {
       throw new UnauthorizedException('Registration failed' + err);
